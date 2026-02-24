@@ -1,0 +1,34 @@
+# Dataset (too large for GitHub)
+dataset/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# TensorBoard / training logs
+runs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Model checkpoints
+*.pth
+*.pt
+*.ckpt
