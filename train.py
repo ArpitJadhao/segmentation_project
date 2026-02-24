@@ -7,7 +7,6 @@ from config import *
 from dataset import DesertSegDataset
 from model   import build_model
 from utils   import IoUMetric, save_loss_iou_plots, compute_class_weights
-import segmentation_models_pytorch as smp
 
 
 def set_seed(seed):
@@ -39,30 +38,14 @@ def train():
     # ── Model ────────────────────────────────────────────────────────────
     model = build_model().to(device)
 
-    # ── Hybrid Loss (Dice + Focal) ──────────────────────────────────────
-    # Focal loss handles class imbalance; Dice loss handles shape overlap
-    dice_loss  = smp.losses.DiceLoss(mode='multiclass', ignore_index=-1)
-    focal_loss = smp.losses.FocalLoss(mode='multiclass', ignore_index=-1)
-    
-    # Optional: cross entropy with weights if focal isn't enough
-    # class_weights = compute_class_weights(TRAIN_SEG).to(device)
-    # ce_loss = torch.nn.CrossEntropyLoss(weight=class_weights, ignore_index=-1)
-    
-    def criterion(logits, masks):
-        return dice_loss(logits, masks) + focal_loss(logits, masks)
+    # ── Loss with class weights ──────────────────────────────────────────
+    print("[INFO] Computing class weights from training masks...")
+    class_weights = compute_class_weights(TRAIN_SEG).to(device)
+    criterion = torch.nn.CrossEntropyLoss(weight=class_weights, ignore_index=-1)
 
     # ── Optimizer & Scheduler ────────────────────────────────────────────
     optimizer = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
-    
-    # OneCycleLR is often better for segmentation tasks
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(
-        optimizer, max_lr=LR, 
-        steps_per_epoch=len(train_loader), 
-        epochs=NUM_EPOCHS,
-        pct_start=0.3,
-        div_factor=10,
-        final_div_factor=100
-    )
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
     scaler    = GradScaler('cuda', enabled=torch.cuda.is_available())
 
     best_miou    = 0.0
@@ -82,7 +65,6 @@ def train():
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
-            scheduler.step()  # Step per batch for OneCycleLR
             epoch_loss += loss.item()
 
         avg_train_loss = epoch_loss / len(train_loader)
@@ -106,7 +88,7 @@ def train():
         miou, per_class = iou_metric.compute()
         val_losses.append(avg_val_loss)
         val_mious .append(miou)
-        # scheduler.step() is handled per batch for OneCycleLR
+        scheduler.step()
 
         print(f"Epoch {epoch:03d}/{NUM_EPOCHS} | "
               f"Train Loss: {avg_train_loss:.4f} | "

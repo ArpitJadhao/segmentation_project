@@ -76,7 +76,8 @@ def run_test():
         f.write(f"Val mIoU: {miou:.4f}\n\nPer-class IoU:\n")
         for i in range(NUM_CLASSES):
             val = per_class[i]
-            f.write(f"  {IDX2NAME[i]:<20}: {val:.4f if not np.isnan(val) else 'N/A'}\n")
+            val_str = f"{val:.4f}" if not np.isnan(val) else "N/A"
+            f.write(f"  {IDX2NAME[i]:<20}: {val_str}\n")
     print(f"[INFO] IoU report saved to {report_path}")
 
 

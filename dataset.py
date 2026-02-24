@@ -68,41 +68,21 @@ class DesertSegDataset(Dataset):
 
         # ── Augmentation ────────────────────────────────────────────────
         if self.augment:
-            # Horizontal Flip (50%)
             if random.random() > 0.5:
                 img  = TF.hflip(img)
                 mask = TF.hflip(mask)
-            
-            # Vertical Flip (20% - rare in desert but can help)
             if random.random() > 0.8:
                 img  = TF.vflip(img)
                 mask = TF.vflip(mask)
-            
-            # Random Rotation + Affine (Scale/Translate)
-            if random.random() > 0.5:
-                angle = random.uniform(-15, 15)
-                translate = (random.uniform(-0.1, 0.1) * self.size, random.uniform(-0.1, 0.1) * self.size)
-                scale = random.uniform(0.8, 1.2)
-                shear = random.uniform(-5, 5)
-                
-                img = TF.affine(img, angle, translate, scale, shear, interpolation=Image.BILINEAR)
-                mask = TF.affine(mask, angle, translate, scale, shear, interpolation=Image.NEAREST)
-
-            # Random Resized Crop (60%)
-            if random.random() > 0.4:
-                i, j, h, w = T.RandomResizedCrop.get_params(
-                    img, scale=(0.5, 1.0), ratio=(0.75, 1.33)
-                )
-                img  = TF.resized_crop(img,  i, j, h, w, (self.size, self.size), Image.BILINEAR)
-                mask = TF.resized_crop(mask, i, j, h, w, (self.size, self.size), Image.NEAREST)
-            
+            # Random resized crop
+            i, j, h, w = T.RandomResizedCrop.get_params(
+                img, scale=(0.5, 1.0), ratio=(0.75, 1.33)
+            )
+            img  = TF.resized_crop(img,  i, j, h, w, (self.size, self.size), Image.BILINEAR)
+            mask = TF.resized_crop(mask, i, j, h, w, (self.size, self.size), Image.NEAREST)
             # Color jitter (image only)
-            jitter = T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.3, hue=0.1)
+            jitter = T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05)
             img = jitter(img)
-
-            # Gaussian Blur (Randomly)
-            if random.random() > 0.7:
-                img = TF.gaussian_blur(img, [3, 3])
 
         # ── To tensor ───────────────────────────────────────────────────
         img_t  = T.ToTensor()(img)

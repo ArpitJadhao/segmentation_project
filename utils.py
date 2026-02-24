@@ -110,3 +110,17 @@ def compute_class_weights(seg_dir: str, num_classes: int = NUM_CLASSES) -> torch
     weights = 1.0 / (freq + 1e-6)
     weights = weights / weights.sum() * num_classes   # normalize
     return torch.tensor(weights, dtype=torch.float32)
+
+
+class FocalLoss(torch.nn.Module):
+    def __init__(self, weight=None, gamma=2.0):
+        super().__init__()
+        self.weight = weight
+        self.gamma  = gamma
+
+    def forward(self, inputs, targets):
+        ce = torch.nn.functional.cross_entropy(
+            inputs, targets, weight=self.weight, reduction='none')
+        pt   = torch.exp(-ce)
+        loss = ((1 - pt) ** self.gamma) * ce
+        return loss.mean()
