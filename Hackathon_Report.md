@@ -46,8 +46,7 @@ The model demonstrated exceptional stability, converging to an optimal state wit
 ### 3.2 Visual Analysis: Training Curves
 The following graph illustrates the synchronization between training and validation loss, confirming healthy generalization.
 
-> **[PLACEHOLDER: Insert `runs/training_curves.png` here]**
-> ![Training Curves](file:///d:/Projects/EDU/segmentation_project/runs/training_curves.png)
+![Training Curves](file:///d:/Projects/EDU/segmentation_project/runs/training_curves_final.png)
 
 ---
 
@@ -63,18 +62,31 @@ The following graph illustrates the synchronization between training and validat
 
 ---
 
-## 5. Failure Case Analysis
-A critical part of our evaluation was identifying where the model remains vulnerable.
+## 5. Visual Accomplishments
+Below are representative examples of the model's segmentation capabilities in diverse desert scenarios.
 
-### Confusion: Rocks vs. Landscape
-**Observation**: In bright midday lighting, the color profile of "Rocks" and "Landscape" (Sand) becomes nearly identical.
-**Impact**: The model occasionally underestimates the elevation of rocks, classifying them as sand—a significant risk for UGV suspension.
+### 5.1 Success Case: Clear Horizon & Vegetation
+The model perfectly handles the transition between sky, vegetation, and sand, maintaining sharp boundaries.
+![Success Case](file:///d:/Projects/EDU/segmentation_project/runs/success_visual.png)
 
-> **[PLACEHOLDER: Insert a sample misclassification image from `runs/predictions/` here]**
+### 5.2 Small Object Detection: Dry Bushes and Distant Rocks
+Increased resolution (640px) enables the detection of low-profile dry bushes that are typically missed at lower resolutions.
+![Detail Detection](file:///d:/Projects/EDU/segmentation_project/runs/detail_visual.png)
 
 ---
 
-## 6. Conclusion & Future Work
+## 6. Failure Case Analysis
+A critical part of our evaluation was identifying where the model remains vulnerable.
+
+### 6.1 Confusion: Rocks vs. Landscape
+**Observation**: In bright midday lighting, the color profile of "Rocks" and "Landscape" (Sand) becomes nearly identical.
+**Impact**: The model occasionally underestimates the elevation of rocks, classifying them as sand—a significant risk for UGV suspension.
+
+![Failure Case Analysis](file:///d:/Projects/EDU/segmentation_project/runs/failure_visual.png)
+
+---
+
+## 7. Conclusion & Future Work
 Our **DesertScan-V3+** model provides a reliable segmentation backbone for off-road navigation. By focusing on resolution and imbalance, we created a model that respects the complex details of a desert biome.
 
 **Future Directions**:
